@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activity 1 — Interpreting Monitoring Data</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --paper: #f8f5f0;
+    --teal: #0a7b6c;
+    --teal-light: #e0f2ef;
+    --amber: #d4841a;
+    --amber-light: #fef3e2;
+    --red: #c0392b;
+    --red-light: #fdecea;
+    --mid: #5a5a72;
+    --rule: #d8d3cb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.7;
+  }
+
+  /* HERO */
+  .hero {
+    background: var(--ink);
+    color: #fff;
+    padding: 64px 48px 56px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    background: rgba(10,123,108,0.18);
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: 120px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: rgba(212,132,26,0.12);
+  }
+  .badge {
+    display: inline-block;
+    background: var(--teal);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 2px;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(32px, 5vw, 52px);
+    line-height: 1.15;
+    max-width: 700px;
+    margin-bottom: 16px;
+  }
+  .hero p {
+    color: rgba(255,255,255,0.72);
+    font-size: 17px;
+    max-width: 580px;
+  }
+
+  /* LAYOUT */
+  .container { max-width: 900px; margin: 0 auto; padding: 0 32px; }
+
+  /* SECTION HEADERS */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 16px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  /* CARDS */
+  .card {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+  }
+  .card h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    margin-bottom: 12px;
+    color: var(--ink);
+  }
+  .card p, .card li {
+    font-size: 15.5px;
+    color: #3a3a52;
+  }
+  .card ul { padding-left: 20px; }
+  .card li { margin-bottom: 6px; }
+
+  /* CONCEPT TRIO */
+  .trio {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .trio-item {
+    border-radius: 8px;
+    padding: 22px 20px;
+    position: relative;
+  }
+  .trio-item.obs { background: #f0f4ff; border-top: 3px solid #4f6fe8; }
+  .trio-item.ana { background: var(--amber-light); border-top: 3px solid var(--amber); }
+  .trio-item.ins { background: var(--teal-light); border-top: 3px solid var(--teal); }
+  .trio-item .step { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+  .trio-item.obs .step { color: #4f6fe8; }
+  .trio-item.ana .step { color: var(--amber); }
+  .trio-item.ins .step { color: var(--teal); }
+  .trio-item h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .trio-item p { font-size: 14px; color: var(--mid); }
+  .trio-item .arrow {
+    display: none;
+  }
+  @media (min-width: 600px) {
+    .trio { position: relative; }
+    .trio-item::after {
+      content: '→';
+      position: absolute;
+      right: -14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--mid);
+      font-size: 18px;
+      z-index: 2;
+    }
+    .trio-item:last-child::after { display: none; }
+  }
+
+  /* DATA TABLE */
+  .data-section { margin: 40px 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  thead tr { background: var(--ink); color: #fff; }
+  thead th {
+    text-align: left;
+    padding: 12px 14px;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+  }
+  tbody tr { border-bottom: 1px solid var(--rule); }
+  tbody tr:nth-child(even) { background: #fafaf8; }
+  tbody td { padding: 11px 14px; color: var(--ink); }
+  .highlight-row { background: #e0f2ef !important; font-weight: 600; }
+  .highlight-row td:first-child::before { content: '★ '; color: var(--teal); }
+
+  /* METRIC EXPLAINERS */
+  .metric-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .metric-card {
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .metric-card .label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--mid); margin-bottom: 4px; }
+  .metric-card .formula { font-size: 13px; background: #f0f0f7; border-radius: 4px; padding: 6px 10px; font-family: monospace; margin: 8px 0; }
+  .metric-card p { font-size: 14px; color: var(--mid); }
+
+  /* TASKS */
+  .task-block {
+    background: var(--ink);
+    color: #fff;
+    border-radius: 8px;
+    padding: 32px;
+    margin: 40px 0;
+  }
+  .task-block h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  .task-block .sub { color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 24px; }
+  .task-item {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .task-num {
+    flex-shrink: 0;
+    width: 28px; height: 28px;
+    background: var(--teal);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    margin-top: 2px;
+  }
+  .task-item p { font-size: 15px; color: rgba(255,255,255,0.88); }
+  .task-item strong { color: #fff; }
+
+  /* TEXTAREA */
+  .response-area {
+    background: #fff;
+    border-radius: 8px;
+    padding: 24px;
+    margin-top: 24px;
+  }
+  .response-area label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--teal);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  textarea {
+    width: 100%;
+    border: 1.5px solid var(--rule);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14.5px;
+    color: var(--ink);
+    resize: vertical;
+    background: var(--paper);
+    transition: border-color 0.2s;
+    min-height: 110px;
+  }
+  textarea:focus { outline: none; border-color: var(--teal); }
+  .char-hint { font-size: 12px; color: var(--mid); margin-top: 6px; }
+
+  /* BUTTONS */
+  .btn-group { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+  .btn {
+    padding: 10px 22px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+    border: none;
+  }
+  .btn-primary { background: var(--teal); color: #fff; }
+  .btn-primary:hover { background: #085f53; }
+  .btn-secondary { background: transparent; color: var(--teal); border: 1.5px solid var(--teal); }
+  .btn-secondary:hover { background: var(--teal-light); }
+  .btn-danger { background: transparent; color: var(--mid); border: 1.5px solid var(--rule); font-size: 13px; }
+  .btn-danger:hover { background: #f5f0eb; }
+
+  /* FEEDBACK */
+  .feedback {
+    display: none;
+    margin-top: 16px;
+    padding: 18px 20px;
+    border-radius: 6px;
+    font-size: 14.5px;
+    line-height: 1.6;
+  }
+  .feedback.show { display: block; }
+  .feedback.good { background: var(--teal-light); border-left: 4px solid var(--teal); color: #0a4a3f; }
+  .feedback.tip { background: var(--amber-light); border-left: 4px solid var(--amber); color: #6b3e0a; }
+  .feedback strong { font-weight: 600; }
+
+  /* MODEL ANSWER */
+  .model-answer {
+    display: none;
+    margin-top: 16px;
+    padding: 20px 24px;
+    background: #f0f4ff;
+    border-radius: 6px;
+    border-left: 4px solid #4f6fe8;
+  }
+  .model-answer.show { display: block; }
+  .model-answer .ma-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #4f6fe8; margin-bottom: 10px; }
+  .model-answer p { font-size: 14.5px; color: #2a2a45; line-height: 1.7; }
+
+  /* CALLOUT */
+  .callout {
+    border-left: 4px solid var(--amber);
+    background: var(--amber-light);
+    padding: 16px 20px;
+    border-radius: 0 6px 6px 0;
+    margin: 20px 0;
+    font-size: 14.5px;
+    color: #5c3a0a;
+  }
+  .callout strong { color: var(--amber); }
+
+  /* PROGRESS */
+  .progress-bar {
+    height: 5px;
+    background: var(--rule);
+    border-radius: 3px;
+    margin: 32px 0 0;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--teal);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+  .progress-label { font-size: 12px; color: var(--mid); margin-top: 6px; text-align: right; }
+
+  /* COMPLETION */
+  .completion {
+    display: none;
+    text-align: center;
+    padding: 48px 32px;
+    background: var(--teal);
+    border-radius: 8px;
+    color: #fff;
+    margin: 32px 0;
+  }
+  .completion.show { display: block; }
+  .completion .icon { font-size: 48px; margin-bottom: 16px; }
+  .completion h3 { font-family: 'DM Serif Display', serif; font-size: 28px; margin-bottom: 8px; }
+  .completion p { opacity: 0.85; font-size: 16px; }
+
+  section { padding: 48px 0; border-bottom: 1px solid var(--rule); }
+  section:last-of-type { border-bottom: none; }
+
+  @media (max-width: 600px) {
+    .hero { padding: 40px 24px; }
+    .container { padding: 0 20px; }
+    .trio { grid-template-columns: 1fr; }
+    .metric-grid { grid-template-columns: 1fr; }
+    .trio-item::after { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="container">
+    <span class="badge">Week 4 · Activity 1 · MKTG1419</span>
+    <h1>Interpreting Social Media Monitoring Data</h1>
+    <p>Move beyond describing numbers. Learn to extract meaning, context, and strategic implication from brand performance metrics.</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- BACKGROUND -->
+  <section>
+    <div class="section-label">Background Knowledge</div>
+
+    <div class="card">
+      <h2>What Is Social Media Monitoring?</h2>
+      <p>Social media monitoring is the systematic tracking of a brand's own social media accounts over a defined period. It focuses on <em>owned data</em> — content published by the brand, and the audience responses to it. Monitoring answers the question: <strong>How is the brand performing right now?</strong></p>
+      <br>
+      <p>Key metrics typically tracked include:</p>
+      <ul style="margin-top:10px">
+        <li><strong>Follower count & growth</strong> — net change over the monitoring window</li>
+        <li><strong>Post frequency</strong> — consistency and volume of publishing</li>
+        <li><strong>Engagement rate (ER%)</strong> — interaction relative to audience size</li>
+        <li><strong>Content type performance</strong> — video vs. carousel vs. static vs. stories</li>
+        <li><strong>Reach & impressions</strong> — how many unique users saw the content</li>
+      </ul>
+    </div>
+
+    <div class="section-label" style="margin-top:32px">The Core Analytical Framework</div>
+
+    <div class="trio">
+      <div class="trio-item obs">
+        <div class="step">Step 1</div>
+        <h3>Observation</h3>
+        <p>What does the data literally show? Report the number or fact with no interpretation.</p>
+        <p style="margin-top:10px; font-style:italic; font-size:13px;">"Brand X posted 14 times over two weeks."</p>
+      </div>
+      <div class="trio-item ana">
+        <div class="step">Step 2</div>
+        <h3>Analysis</h3>
+        <p>What does the number mean, in context? Compare to benchmarks. Cite a source.</p>
+        <p style="margin-top:10px; font-style:italic; font-size:13px;">"This averages one post per day, which research suggests supports algorithmic reach."</p>
+      </div>
+      <div class="trio-item ins">
+        <div class="step">Step 3</div>
+        <h3>Insight</h3>
+        <p>Why does this matter for the brand's strategy? What should they do, or consider?</p>
+        <p style="margin-top:10px; font-style:italic; font-size:13px;">"Consistent posting builds reach, but content variety remains a gap for long-term retention."</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Key principle:</strong> Every metric you report must travel through all three stages. A number without analysis is a description. Analysis without insight is incomplete. Insight without evidence is an opinion.
+    </div>
+
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="label">Engagement Rate (ER%)</div>
+        <div class="formula">(Likes + Comments + Shares) ÷ Followers × 100</div>
+        <p>ER benchmarks vary by platform and account size. Larger accounts typically see lower ERs due to <em>follower dilution</em> — always contextualise the figure against industry norms before judging performance.</p>
+      </div>
+      <div class="metric-card">
+        <div class="label">Follower Growth</div>
+        <div class="formula">((End count − Start count) ÷ Start count) × 100</div>
+        <p>Two weeks is a short window. Report the percentage change and identify any external triggers (campaign launches, viral posts, media coverage) that may explain sudden shifts.</p>
+      </div>
+      <div class="metric-card">
+        <div class="label">Content Type Signal</div>
+        <div class="formula">Compare avg. ER by format</div>
+        <p>Video and short-form content typically outperform static imagery on most platforms. But ask <em>why</em> — is it the format, the emotion, or the narrative that drives engagement?</p>
+      </div>
+      <div class="metric-card">
+        <div class="label">Posting Frequency</div>
+        <div class="formula">Posts per week / platform benchmark</div>
+        <p>Erratic posting — long gaps followed by bursts — can suppress algorithmic reach. Consistency signals reliability to both the algorithm and the audience.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCENARIO DATA -->
+  <section>
+    <div class="section-label">Scenario Data — Brand Nova · Instagram</div>
+    <p style="font-size:15px; color:var(--mid); margin-bottom:24px;">Use this illustrative dataset from Brand Nova, a Vietnamese lifestyle brand, to complete the activities below. Followers at start of period: <strong>620,000</strong>.</p>
+
+    <div class="data-section">
+      <table>
+        <thead>
+          <tr>
+            <th>Post #</th>
+            <th>Date</th>
+            <th>Content Type</th>
+            <th>Theme</th>
+            <th>Likes</th>
+            <th>Comments</th>
+            <th>Shares</th>
+            <th>ER%</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>01</td><td>3 Mar</td><td>Static image</td><td>Product launch</td><td>7,200</td><td>180</td><td>310</td><td>1.24%</td>
+          </tr>
+          <tr>
+            <td>02</td><td>5 Mar</td><td>Short video</td><td>Behind-the-scenes</td><td>31,400</td><td>1,040</td><td>2,870</td><td>5.69%</td>
+          </tr>
+          <tr>
+            <td>03</td><td>7 Mar</td><td>Carousel</td><td>Sustainability story</td><td>9,800</td><td>420</td><td>760</td><td>1.77%</td>
+          </tr>
+          <tr class="highlight-row">
+            <td>04</td><td>10 Mar</td><td>Short video</td><td>Customer story (UGC)</td><td>74,600</td><td>3,290</td><td>11,200</td><td>14.37%</td>
+          </tr>
+          <tr>
+            <td>05</td><td>12 Mar</td><td>Static image</td><td>Promotion</td><td>5,600</td><td>140</td><td>220</td><td>0.96%</td>
+          </tr>
+          <tr>
+            <td>06</td><td>14 Mar</td><td>Carousel</td><td>Team & culture</td><td>12,300</td><td>560</td><td>980</td><td>2.23%</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size:12px; color:var(--mid); margin-top:8px;">★ = Highest performing post. ER% = (Likes + Comments + Shares) ÷ 620,000 × 100. Illustrative data only.</p>
+    </div>
+  </section>
+
+  <!-- TASK BLOCK -->
+  <section>
+    <div class="task-block">
+      <h2>Your Tasks</h2>
+      <p class="sub">Complete all three tasks individually or in small groups. Use the data table above.</p>
+      <div class="task-item">
+        <div class="task-num">1</div>
+        <p><strong>Calculate</strong> the average engagement rate across all six posts. Then interpret what this figure suggests about Brand Nova's performance — use at least one external benchmark or academic reference to support your interpretation.</p>
+      </div>
+      <div class="task-item">
+        <div class="task-num">2</div>
+        <p><strong>Identify</strong> the pattern between content type and engagement rate. What does Post 04's outlier performance reveal? Write two sentences of analysis (not description) — explain the <em>why</em> behind the pattern, citing academic or industry sources.</p>
+      </div>
+      <div class="task-item">
+        <div class="task-num">3</div>
+        <p><strong>Draft</strong> a 4–6 sentence monitoring paragraph suitable for a brand report (Section 3 style). Use the words <em>"suggests," "indicates,"</em> or <em>"reveals."</em> Your paragraph should move through Observation → Analysis → Insight.</p>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label" id="progressLabel">0 of 3 tasks submitted</div>
+
+    <!-- Task 1 -->
+    <div class="response-area" style="margin-top:32px;" id="t1-block">
+      <label>Task 1 — Average ER & Benchmark Interpretation</label>
+      <textarea id="t1" placeholder="Calculate the average ER%, then interpret it using a benchmark. E.g., 'The average ER across six posts was X%. According to [source], this indicates...'" rows="5"></textarea>
+      <p class="char-hint">Aim for 3–5 sentences. Include a cited benchmark.</p>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="checkTask(1)">Submit Task 1</button>
+        <button class="btn btn-secondary" onclick="toggleModel(1)">See model answer</button>
+        <button class="btn btn-danger" onclick="clearTask(1)">Clear</button>
+      </div>
+      <div class="feedback" id="t1-fb"></div>
+      <div class="model-answer" id="t1-model">
+        <div class="ma-label">Model Answer</div>
+        <p>Across the six monitored posts, the average engagement rate for Brand Nova was approximately <strong>4.38%</strong> — though this figure is significantly elevated by Post 04's exceptional performance (14.37%). Excluding the outlier, the average falls to around <strong>2.38%</strong>, which remains above Instagram's typical benchmark of 0.5–1% for accounts of comparable size (RivalIQ, 2025). This suggests Brand Nova's content strategy is broadly effective at generating audience interaction, with content type emerging as a key differentiating variable. However, the wide variance between posts — particularly between UGC video (14.37%) and static promotional imagery (0.96%) — indicates that content format and authenticity, rather than posting frequency alone, are the primary drivers of engagement for this account.</p>
+      </div>
+    </div>
+
+    <!-- Task 2 -->
+    <div class="response-area" id="t2-block">
+      <label>Task 2 — Content Type Pattern & Analysis</label>
+      <textarea id="t2" placeholder="What pattern do you see between content type and ER? Why might UGC short video outperform static imagery? Cite a source..." rows="5"></textarea>
+      <p class="char-hint">Two analytical sentences. Focus on the 'why', not just the 'what.'</p>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="checkTask(2)">Submit Task 2</button>
+        <button class="btn btn-secondary" onclick="toggleModel(2)">See model answer</button>
+        <button class="btn btn-danger" onclick="clearTask(2)">Clear</button>
+      </div>
+      <div class="feedback" id="t2-fb"></div>
+      <div class="model-answer" id="t2-model">
+        <div class="ma-label">Model Answer</div>
+        <p>Across Brand Nova's six monitored posts, short-form video content outperformed static imagery and carousels by a substantial margin, with Post 04's UGC compilation achieving an engagement rate of 14.37% — more than ten times the average of the two static posts (1.10%). This pattern suggests that it is not video format alone, but rather the combination of user-generated authenticity and emotional storytelling, that drives disproportionate audience response; research indicates that UGC enhances perceived brand credibility and activates social sharing behaviours by reducing the psychological distance between brand and consumer (Niu, 2025).</p>
+      </div>
+    </div>
+
+    <!-- Task 3 -->
+    <div class="response-area" id="t3-block">
+      <label>Task 3 — Draft Monitoring Paragraph (Section 3 Style)</label>
+      <textarea id="t3" placeholder="Write a 4–6 sentence paragraph moving from observation to analysis to insight. Include 'suggests', 'indicates' or 'reveals'..." rows="7"></textarea>
+      <p class="char-hint">4–6 sentences. Observation → Analysis → Insight. At least one cited source.</p>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="checkTask(3)">Submit Task 3</button>
+        <button class="btn btn-secondary" onclick="toggleModel(3)">See model answer</button>
+        <button class="btn btn-danger" onclick="clearTask(3)">Clear</button>
+      </div>
+      <div class="feedback" id="t3-fb"></div>
+      <div class="model-answer" id="t3-model">
+        <div class="ma-label">Model Answer</div>
+        <p>Across Brand Nova's six monitored Instagram posts, short-form video content consistently generated higher engagement rates than static imagery or carousels. Post 04 — a user-generated customer story — achieved an engagement rate of 14.37%, compared to an average of 1.10% for the two static promotional posts published during the same period. This 13-fold difference <em>reveals</em> that content format and authenticity are the primary engagement drivers for this account, rather than posting volume. The pattern <em>indicates</em> that audiences respond more strongly to peer-led narratives than to brand-produced promotional material, consistent with research demonstrating that UGC enhances perceived authenticity and amplifies sharing behaviour (Niu, 2025). These findings <em>suggest</em> Brand Nova should prioritise UGC-integrated short video in its content calendar, particularly around product-related storytelling, to capitalise on the engagement premium observed in this monitoring window.</p>
+      </div>
+    </div>
+
+    <div class="completion" id="completion">
+      <div class="icon">✓</div>
+      <h3>Activity Complete!</h3>
+      <p>You've practised the full Observation → Analysis → Insight chain across all three monitoring tasks. Review the model answers and consider: where did your language differ? Were your sources specific enough?</p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  const submitted = [false, false, false];
+
+  function checkTask(n) {
+    const val = document.getElementById(`t${n}`).value.trim();
+    const fb = document.getElementById(`t${n}-fb`);
+    if (!val || val.length < 40) {
+      fb.className = 'feedback tip show';
+      fb.innerHTML = '<strong>Tip:</strong> Your response is too brief. Aim for at least 3–5 sentences with specific numbers and a referenced source.';
+      return;
+    }
+    const lower = val.toLowerCase();
+    const hasCite = lower.includes('2024') || lower.includes('2025') || lower.includes('2023') || lower.includes('et al') || lower.includes('according to') || lower.includes('research') || lower.includes('%') || lower.includes('benchmark');
+    const hasInsight = lower.includes('suggest') || lower.includes('indicat') || lower.includes('reveal') || lower.includes('imply') || lower.includes('therefore') || lower.includes('because') || lower.includes('why') || lower.includes('mean');
+
+    if (hasCite && hasInsight) {
+      fb.className = 'feedback good show';
+      fb.innerHTML = '<strong>Good work!</strong> Your response includes analytical language and external support. Compare your phrasing to the model answer — look for any gaps in the Observation → Analysis → Insight chain.';
+    } else if (!hasCite) {
+      fb.className = 'feedback tip show';
+      fb.innerHTML = '<strong>Strengthen this:</strong> Reference a specific benchmark, industry report, or academic source to support your interpretation. Avoid unsupported claims.';
+    } else {
+      fb.className = 'feedback tip show';
+      fb.innerHTML = '<strong>Push further:</strong> Your response describes what the data shows. Now explain <em>why</em> — use language like "this suggests," "this indicates," or "this reveals" to move from description to insight.';
+    }
+
+    if (!submitted[n-1]) {
+      submitted[n-1] = true;
+      updateProgress();
+    }
+  }
+
+  function toggleModel(n) {
+    const el = document.getElementById(`t${n}-model`);
+    el.classList.toggle('show');
+  }
+
+  function clearTask(n) {
+    document.getElementById(`t${n}`).value = '';
+    document.getElementById(`t${n}-fb`).className = 'feedback';
+    document.getElementById(`t${n}-model`).className = 'model-answer';
+  }
+
+  function updateProgress() {
+    const count = submitted.filter(Boolean).length;
+    const pct = (count / 3) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = `${count} of 3 tasks submitted`;
+    if (count === 3) {
+      document.getElementById('completion').classList.add('show');
+    }
+  }
+</script>
+</body>
+</html>
